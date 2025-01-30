@@ -1,5 +1,6 @@
 import 'package:delivery_app/common/dio/dio.dart';
 import 'package:delivery_app/common/layout/default_layout.dart';
+import 'package:delivery_app/domain/rating/component/rating_card.dart';
 import 'package:delivery_app/domain/restaurant/component/restaurant_card.dart';
 import 'package:delivery_app/domain/restaurant/model/restaurant_detail_model.dart';
 import 'package:delivery_app/domain/restaurant/provider/restaurant_provider.dart';
@@ -47,23 +48,38 @@ class _RestaurantDetailScreenState
     }
 
     return DefaultLayout(
-      title: '불타는 떡볶이',
+      title: state.name,
       child: CustomScrollView(
         slivers: [
           renderTop(
             item: state,
           ),
-          if (state is RestaurantDetailModel) renderLabel(),
+          if (state is RestaurantDetailModel) renderMenuLabel(),
           if (state is RestaurantDetailModel)
             renderProducts(
               products: state.products,
             ),
+          if (state is RestaurantDetailModel) renderReviewLabel(),
+          SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            sliver: SliverToBoxAdapter(
+              child: RatingCard(
+                profileImage: AssetImage(
+                  'asset/img/logo/codefactory_logo.png',
+                ),
+                images: [],
+                rating: 4,
+                email: 'test@codefactory.ai',
+                content: '맛있어요!',
+              ),
+            ),
+          )
         ],
       ),
     );
   }
 
-  SliverPadding renderLabel() {
+  SliverPadding renderMenuLabel() {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverToBoxAdapter(
@@ -107,6 +123,22 @@ class _RestaurantDetailScreenState
             );
           },
           childCount: products.length,
+        ),
+      ),
+    );
+  }
+
+
+  SliverPadding renderReviewLabel() {
+    return SliverPadding(
+      padding: EdgeInsets.only(top: 32, left: 16, right: 16),
+      sliver: SliverToBoxAdapter(
+        child: Text(
+          '리뷰',
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );
