@@ -2,14 +2,18 @@ import 'package:delivery_app/common/dio/dio.dart';
 import 'package:delivery_app/common/layout/default_layout.dart';
 import 'package:delivery_app/domain/restaurant/component/restaurant_card.dart';
 import 'package:delivery_app/domain/restaurant/model/restaurant_detail_model.dart';
+import 'package:delivery_app/domain/restaurant/provider/restaurant_provider.dart';
 import 'package:delivery_app/domain/restaurant/repository/restaurant_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../common/const/data.dart';
 import '../../product/component/product_card.dart';
+import '../model/restaurant_model.dart';
 
-class RestaurantDetailScreen extends StatelessWidget {
+class RestaurantDetailScreen extends ConsumerStatefulWidget {
   final String id;
 
   const RestaurantDetailScreen({
@@ -17,54 +21,44 @@ class RestaurantDetailScreen extends StatelessWidget {
     required this.id,
   });
 
-  Future<RestaurantDetailModel> getRestaurantDetail() async {
-    final dio = Dio();
+  @override
+  ConsumerState<RestaurantDetailScreen> createState() =>
+      _RestaurantDetailScreenState();
+}
 
-    dio.interceptors.add(
-      CustomInterceptor(
-        flutterSecureStorage: flutterSecureStorage,
-      ),
-    );
+class _RestaurantDetailScreenState
+    extends ConsumerState<RestaurantDetailScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
 
-    final repository =
-        RestaurantRepository(dio, baseUrl: 'http://$ip/restaurant');
-
-    return repository.getRestaurantDetail(id: id);
+    ref.read(restaurantProvider.notifier).getDetail(id: widget.id);
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(restaurantDetailProvider(widget.id));
+
+    if (state == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return DefaultLayout(
       title: '불타는 떡볶이',
-      child: FutureBuilder<RestaurantDetailModel>(
-        future: getRestaurantDetail(),
-        builder: (_, AsyncSnapshot<RestaurantDetailModel> snapshot) {
-          print(snapshot.data);
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('에러가 발생했습니다.: ${snapshot.error.toString()}'),
-            );
-          }
-
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          return CustomScrollView(
-            slivers: [
-              renderTop(
-                item: snapshot.data!,
-              ),
-              renderLabel(),
-              renderProducts(
-                products: snapshot.data!.products,
-              ),
-            ],
-          );
-        },
+      child: CustomScrollView(
+        slivers: [
+          renderTop(
+            item: state,
+          ),
+          if (state is RestaurantDetailModel) renderLabel(),
+          if (state is RestaurantDetailModel)
+            renderProducts(
+              products: state.products,
+            ),
+        ],
       ),
     );
   }
@@ -85,7 +79,7 @@ class RestaurantDetailScreen extends StatelessWidget {
   }
 
   SliverToBoxAdapter renderTop({
-    required RestaurantDetailModel item,
+    required RestaurantModel item,
   }) {
     return SliverToBoxAdapter(
       child: RestaurantCard.fromModel(

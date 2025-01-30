@@ -15,6 +15,7 @@ class RestaurantCard extends StatelessWidget {
   final int deliveryFee; // 배달 비용
   final bool isDetail; // 상세 페이지 여부
   final String? detail; // 상세 내용
+  final String? heroTag; // Hero 태그
 
   const RestaurantCard({
     super.key,
@@ -27,6 +28,7 @@ class RestaurantCard extends StatelessWidget {
     required this.deliveryFee,
     this.isDetail = false,
     this.detail,
+    this.heroTag,
   });
 
   factory RestaurantCard.fromModel({
@@ -46,6 +48,7 @@ class RestaurantCard extends StatelessWidget {
       deliveryFee: model.deliveryFee,
       isDetail: isDetail,
       detail: model is RestaurantDetailModel ? model.detail : null,
+      heroTag: model.id,
     );
   }
 
@@ -53,10 +56,17 @@ class RestaurantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (isDetail) image,
-        if (!isDetail)
+        if (heroTag != null)
+          Hero(
+            tag: ObjectKey(heroTag),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(isDetail ? 0 : 12),
+              child: image,
+            ),
+          ),
+        if (heroTag == null)
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(isDetail ? 0 : 12),
             child: image,
           ),
         SizedBox(height: 16),
