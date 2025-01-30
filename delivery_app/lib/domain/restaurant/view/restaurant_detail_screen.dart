@@ -13,6 +13,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../../common/const/data.dart';
 import '../../product/component/product_card.dart';
 import '../model/restaurant_model.dart';
+import '../provider/restaurant_rating_provider.dart';
 
 class RestaurantDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -40,6 +41,9 @@ class _RestaurantDetailScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantDetailProvider(widget.id));
+    final ratingsState = ref.watch(restaurantRatingProvider(widget.id));
+
+    print('ratingsState: $ratingsState');
 
     if (state == null) {
       return Center(
