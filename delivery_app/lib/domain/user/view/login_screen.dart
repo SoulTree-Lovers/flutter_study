@@ -6,6 +6,8 @@ import 'package:delivery_app/common/const/data.dart';
 import 'package:delivery_app/common/layout/default_layout.dart';
 import 'package:delivery_app/common/secure_storage/secure_storage.dart';
 import 'package:delivery_app/common/view/root_tab.dart';
+import 'package:delivery_app/domain/user/model/user_model.dart';
+import 'package:delivery_app/domain/user/provider/user_me_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +16,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../common/component/custom_text_form_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
+  static String get routeName => '/login';
+
   const LoginScreen({super.key});
 
   @override
@@ -26,7 +30,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dio = Dio();
+    final state = ref.watch(userMeProvider);
 
     return DefaultLayout(
       child: GestureDetector(
@@ -69,8 +73,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () async {
-                      // ID:PASSWORD를 Base64로 인코딩
+                    onPressed: state is UserModelLoading // 로딩 중이면 버튼 비활성화
+                        ? null
+                        : () async {
+                            ref.read(userMeProvider.notifier).login(
+                                  username: username,
+                                  password: password,
+                                );
+
+                            /*// ID:PASSWORD를 Base64로 인코딩
                       final rawString = '$username:$password';
                       print('rawString: $rawString');
 
@@ -96,9 +107,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       print(response.data);
 
-                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => RootTab()));
-
-                    },
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => RootTab()));*/
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: PRIMARY_COLOR,
                       foregroundColor: Colors.white,
@@ -108,9 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () async {
-
-                    },
+                    onPressed: () async {},
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: PRIMARY_COLOR,
