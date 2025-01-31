@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_router_v7/screens/10_1_transition_screen.dart';
+import 'package:go_router_v7/screens/11_error_screen.dart';
 import 'package:go_router_v7/screens/1_basic_screen.dart';
 import 'package:go_router_v7/screens/3_push_screen.dart';
 import 'package:go_router_v7/screens/4_pop_base_screen.dart';
@@ -11,6 +14,7 @@ import 'package:go_router_v7/screens/9_login_screen.dart';
 import 'package:go_router_v7/screens/9_private_screen.dart';
 import 'package:go_router_v7/screens/root_screen.dart';
 
+import '../screens/10_2_transition_screen.dart';
 import '../screens/2_named_screen.dart';
 
 // 로그인 여부
@@ -118,7 +122,33 @@ final router = GoRouter(
             ),
           ],
         ),
+        GoRoute(
+          path: 'transition',
+          builder: (context, state) => TransitionScreenOne(),
+          routes: [
+            GoRoute(
+              path: 'detail',
+              pageBuilder: (context, state) => CustomTransitionPage(
+                transitionDuration: Duration(seconds: 3),
+                child: TransitionScreenTwo(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  // 1. FadeTransition
+                  // 2. ScaleTransition
+                  // 3. RotationTransition
+                  return FadeTransition( // Fade 효과 적용
+                    opacity: animation, // 0: 애니메이션 시작 점 / 1: 애니메이션 끝 점
+                    child: child,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ],
     ),
   ],
+  errorBuilder: (context, state) {
+    return ErrorScreen(error: state.error.toString());
+  },
 );
