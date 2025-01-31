@@ -2,6 +2,8 @@ import 'package:delivery_app/common/const/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
+import '../model/rating_model.dart';
+
 class RatingCard extends StatelessWidget {
   final ImageProvider profileImage; // 리뷰 작성자 프로필 이미지
   final List<Image> images; // 리뷰 이미지
@@ -18,6 +20,18 @@ class RatingCard extends StatelessWidget {
     required this.content,
   });
 
+  factory RatingCard.fromModel({
+    required RatingModel model,
+  }) {
+    return RatingCard(
+      profileImage: NetworkImage(model.user.imageUrl),
+      images: model.imgUrls.map((e) => Image.network(e)).toList(),
+      rating: model.rating,
+      email: model.user.username,
+      content: model.content,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -32,9 +46,9 @@ class RatingCard extends StatelessWidget {
           content: content,
         ),
         if (images.isNotEmpty)
-        _Images(
-          images: images,
-        ),
+          _Images(
+            images: images,
+          ),
       ],
     );
   }
@@ -124,21 +138,25 @@ class _Images extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: images
-            .mapIndexed(
-              (index, e) => Padding(
-                padding: EdgeInsets.only(right: index == images.length - 1 ? 0 : 8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: e,
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: SizedBox(
+        height: 100,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: images
+              .mapIndexed(
+                (index, e) => Padding(
+                  padding: EdgeInsets.only(
+                      right: index == images.length - 1 ? 0 : 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: e,
+                  ),
                 ),
-              ),
-            )
-            .toList(),
+              )
+              .toList(),
+        ),
       ),
     );
   }

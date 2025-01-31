@@ -1,5 +1,6 @@
 import 'package:delivery_app/common/const/data.dart';
 import 'package:delivery_app/common/model/cursor_pagination_model.dart';
+import 'package:delivery_app/common/utils/pagination_utils.dart';
 import 'package:delivery_app/domain/restaurant/component/restaurant_card.dart';
 import 'package:delivery_app/domain/restaurant/provider/restaurant_provider.dart';
 import 'package:delivery_app/domain/restaurant/view/restaurant_detail_screen.dart';
@@ -30,15 +31,22 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
   }
 
   void scrollListner() {
+    PaginationUtils.paginate(
+      scrollController: scrollController,
+      paginationProvider: ref.read(
+        restaurantProvider.notifier,
+      ),
+    );
     // 현재 위치가 최대 길이보다 조금 덜 되는 위치까지 왔다면 새로운 데이터를 추가 요청
-    if (scrollController.offset > scrollController.position.maxScrollExtent - 300) { // maxScrollExtent: 스크롤 가능한 최대 길이
-      ref.read(restaurantProvider.notifier).paginate(fetchMore: true);
-    }
+    // if (scrollController.offset >
+    //     scrollController.position.maxScrollExtent - 300) {
+    //   // maxScrollExtent: 스크롤 가능한 최대 길이
+    //   ref.read(restaurantProvider.notifier).paginate(fetchMore: true);
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
-
     final data = ref.watch(restaurantProvider);
 
     // 1. 맨 처음 로딩
@@ -57,7 +65,6 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
 
     final cp = data as CursorPagination; // 임시
 
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: ListView.separated(
@@ -66,9 +73,12 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
         itemBuilder: (_, index) {
           if (index == cp.data.length) {
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Center(
-                child: data is CursorPaginationFetchingMore ? CircularProgressIndicator() : Text('마지막 데이터입니다 ㅠㅠ'),
+                child: data is CursorPaginationFetchingMore
+                    ? CircularProgressIndicator()
+                    : Text('마지막 데이터입니다 ㅠㅠ'),
               ),
             );
           }

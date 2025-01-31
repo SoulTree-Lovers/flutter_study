@@ -5,13 +5,15 @@ import 'package:delivery_app/domain/restaurant/component/restaurant_card.dart';
 import 'package:delivery_app/domain/restaurant/model/restaurant_detail_model.dart';
 import 'package:delivery_app/domain/restaurant/provider/restaurant_provider.dart';
 import 'package:delivery_app/domain/restaurant/repository/restaurant_repository.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../common/const/data.dart';
+import '../../../common/model/cursor_pagination_model.dart';
+import '../../../common/utils/pagination_utils.dart';
 import '../../product/component/product_card.dart';
+import '../../rating/model/rating_model.dart';
 import '../model/restaurant_model.dart';
 import '../provider/restaurant_rating_provider.dart';
 
@@ -30,18 +32,31 @@ class RestaurantDetailScreen extends ConsumerStatefulWidget {
 
 class _RestaurantDetailScreenState
     extends ConsumerState<RestaurantDetailScreen> {
+  final ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
     ref.read(restaurantProvider.notifier).getDetail(id: widget.id);
+    scrollController.addListener(listener);
+  }
+
+  void listener() {
+    PaginationUtils.paginate(
+      scrollController: scrollController,
+      paginationProvider: ref.read(
+        restaurantRatingProvider(widget.id).notifier,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantDetailProvider(widget.id));
-    final ratingsState = ref.watch(restaurantRatingProvider(widget.id));
+    final ratingsState = ref.watch(
+        restaurantRatingProvider(widget.id)); // data: CursorPagination<ratingModel> 반환
 
     print('ratingsState: $ratingsState');
 
@@ -54,6 +69,7 @@ class _RestaurantDetailScreenState
     return DefaultLayout(
       title: state.name,
       child: CustomScrollView(
+        controller: scrollController,
         slivers: [
           renderTop(
             item: state,
@@ -64,20 +80,10 @@ class _RestaurantDetailScreenState
               products: state.products,
             ),
           if (state is RestaurantDetailModel) renderReviewLabel(),
-          SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            sliver: SliverToBoxAdapter(
-              child: RatingCard(
-                profileImage: AssetImage(
-                  'asset/img/logo/codefactory_logo.png',
-                ),
-                images: [],
-                rating: 4,
-                email: 'test@codefactory.ai',
-                content: '맛있어요!',
-              ),
+          if (ratingsState is CursorPagination<RatingModel>)
+            renderRatings(
+              models: ratingsState.data,
             ),
-          )
         ],
       ),
     );
@@ -132,7 +138,6 @@ class _RestaurantDetailScreenState
     );
   }
 
-
   SliverPadding renderReviewLabel() {
     return SliverPadding(
       padding: EdgeInsets.only(top: 32, left: 16, right: 16),
@@ -143,6 +148,23 @@ class _RestaurantDetailScreenState
             fontSize: 18.0,
             fontWeight: FontWeight.w500,
           ),
+        ),
+      ),
+    );
+  }
+
+  SliverPadding renderRatings({
+    required List<RatingModel> models,
+  }) {
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (_, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 32.0),
+            child: RatingCard.fromModel(model: models[index]),
+          ),
+          childCount: models.length,
         ),
       ),
     );
