@@ -151,4 +151,5 @@ final router = GoRouter(
   errorBuilder: (context, state) {
     return ErrorScreen(error: state.error.toString());
   },
+  debugLogDiagnostics: true, // 디버그 로그 출력
 );
