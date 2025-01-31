@@ -58,8 +58,6 @@ class _RestaurantDetailScreenState
     final ratingsState = ref.watch(
         restaurantRatingProvider(widget.id)); // data: CursorPagination<ratingModel> 반환
 
-    print('ratingsState: $ratingsState');
-
     if (state == null) {
       return Center(
         child: CircularProgressIndicator(),
@@ -127,7 +125,7 @@ class _RestaurantDetailScreenState
 
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ProductCard.fromModel(
+              child: ProductCard.fromRestaurantProductModel(
                 json: json,
               ),
             );

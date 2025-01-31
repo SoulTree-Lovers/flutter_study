@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../common/const/data.dart';
 import '../../restaurant/model/restaurant_detail_model.dart';
+import '../model/product_model.dart';
 
 class ProductCard extends StatelessWidget {
   final Image image;
@@ -18,7 +19,24 @@ class ProductCard extends StatelessWidget {
     required this.price,
   });
 
-  factory ProductCard.fromModel({
+  factory ProductCard.fromProductModel({
+    required ProductModel model,
+  }){
+    return ProductCard(
+      image: Image.network(
+        model.imgUrl,
+        width: 110,
+        height: 110,
+        fit: BoxFit.cover,
+      ),
+      name: model.name,
+      detail: model.detail,
+      price: model.price,
+    );
+  }
+
+
+  factory ProductCard.fromRestaurantProductModel({
     required RestaurantProductModel json,
   }) {
     return ProductCard(
