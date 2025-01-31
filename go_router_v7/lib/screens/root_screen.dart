@@ -16,6 +16,19 @@ class RootScreen extends StatelessWidget {
             },
             child: Text('Go To Basic Screen'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              // context.go('/named'); -> 이것도 가능
+              context.goNamed('named_screen'); // 이름을 통해 스크린 이동
+            },
+            child: Text('Go To Named Screen'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.goNamed('push_screen'); // 이름을 통해 스크린 이동
+            },
+            child: Text('Go To Push Screen'),
+          ),
         ],
       ),
     );
