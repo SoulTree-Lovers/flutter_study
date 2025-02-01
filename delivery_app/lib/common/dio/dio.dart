@@ -1,16 +1,22 @@
 import 'package:delivery_app/common/const/data.dart'; // 데이터 상수를 가져옴
 import 'package:delivery_app/common/secure_storage/secure_storage.dart';
+import 'package:delivery_app/domain/user/provider/auth_provider.dart';
+import 'package:delivery_app/domain/user/provider/user_me_provider.dart';
 import 'package:dio/dio.dart'; // Dio 패키지를 가져옴
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Flutter Secure Storage 패키지를 가져옴
 
-final dioProvider = Provider<Dio>((ref) { // Dio 인스턴스를 생성하는 Provider
+final dioProvider = Provider<Dio>((ref) {
+  // Dio 인스턴스를 생성하는 Provider
   final dio = Dio();
 
   final flutterSecureStorage = ref.watch(secureStorageProvider);
 
   dio.interceptors.add(
-    CustomInterceptor(flutterSecureStorage: flutterSecureStorage),
+    CustomInterceptor(
+      flutterSecureStorage: flutterSecureStorage,
+      ref: ref,
+    ),
   );
 
   return dio;
@@ -20,10 +26,12 @@ class CustomInterceptor extends Interceptor {
   // CustomInterceptor 클래스는 Interceptor를 상속받음
   final FlutterSecureStorage
       flutterSecureStorage; // FlutterSecureStorage 인스턴스를 저장할 변수
+  final Ref ref;
 
   CustomInterceptor({
     // CustomInterceptor 생성자
     required this.flutterSecureStorage, // flutterSecureStorage를 필수로 받음
+    required this.ref,
   });
 
   // 1. 요청 보낼 때
@@ -122,6 +130,8 @@ class CustomInterceptor extends Interceptor {
         return handler.resolve(newResponse); // 새로운 응답을 반환
       } on DioException catch (e) {
         // 에러가 발생하면
+        ref.read(authProvider.notifier).logout(); // 로그아웃을 실행 (이 방법은 circular dependency 문제 발생)
+
         return handler.reject(err); // 에러를 발생시킴
       }
     }
