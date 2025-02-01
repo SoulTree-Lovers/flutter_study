@@ -10,6 +10,8 @@ class PatchBasketBody {
   });
 
   Map<String, dynamic> toJson() => _$PatchBasketBodyToJson(this);
+
+  factory PatchBasketBody.fromJson(Map<String, dynamic> json) => _$PatchBasketBodyFromJson(json);
 }
 
 @JsonSerializable()

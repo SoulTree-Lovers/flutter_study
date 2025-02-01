@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:delivery_app/common/view/root_tab.dart';
 import 'package:delivery_app/common/view/splash_screen.dart';
+import 'package:delivery_app/domain/order/view/order_done_screen.dart';
 import 'package:delivery_app/domain/restaurant/view/basket_screen.dart';
 import 'package:delivery_app/domain/restaurant/view/restaurant_detail_screen.dart';
 import 'package:delivery_app/domain/user/model/user_model.dart';
@@ -55,6 +56,11 @@ class AuthProvider extends ChangeNotifier {
           path: '/login',
           name: LoginScreen.routeName,
           builder: (_, __) => LoginScreen(),
+        ),
+        GoRoute(
+          path: '/order_done',
+          name: OrderDoneScreen.routeName,
+          builder: (_, __) => OrderDoneScreen(),
         ),
       ];
 

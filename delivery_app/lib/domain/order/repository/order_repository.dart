@@ -2,6 +2,7 @@ import 'package:delivery_app/common/dio/dio.dart';
 import 'package:delivery_app/domain/order/model/order_model.dart';
 import 'package:dio/dio.dart' hide Headers;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 
 import '../../../common/const/data.dart';
