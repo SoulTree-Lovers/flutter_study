@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:delivery_app/common/view/root_tab.dart';
 import 'package:delivery_app/common/view/splash_screen.dart';
+import 'package:delivery_app/domain/restaurant/view/basket_screen.dart';
 import 'package:delivery_app/domain/restaurant/view/restaurant_detail_screen.dart';
 import 'package:delivery_app/domain/user/model/user_model.dart';
 import 'package:delivery_app/domain/user/provider/user_me_provider.dart';
@@ -41,6 +42,11 @@ class AuthProvider extends ChangeNotifier {
           ],
         ),
         GoRoute(
+          path: '/basket',
+          name: BasketScreen.routeName,
+          builder: (_, __) => BasketScreen(),
+        ),
+        GoRoute(
           path: '/splash',
           name: SplashScreen.routeName,
           builder: (_, __) => SplashScreen(),
@@ -59,7 +65,8 @@ class AuthProvider extends ChangeNotifier {
   // SplashScreen
   // 앱을 처음 시작했을 때 토큰이 존재하는지 확인 후, 로그인 스크린으로 보낼지 홈 스크린으로 보낼지 확인하는 과정이 필요하다.
   // GoRouter v14에 맞게 수정함
-  FutureOr<String?> redirectLogic(BuildContext context, GoRouterState state) async {
+  FutureOr<String?> redirectLogic(
+      BuildContext context, GoRouterState state) async {
     final UserModelBase? user = ref.read(userMeProvider);
     final logginIn = state.matchedLocation == '/login'; // 현재 위치가 로그인 페이지인지 확인
 

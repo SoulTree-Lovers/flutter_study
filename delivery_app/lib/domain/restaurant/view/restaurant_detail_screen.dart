@@ -10,6 +10,7 @@ import 'package:delivery_app/domain/restaurant/repository/restaurant_repository.
 import 'package:delivery_app/domain/user/provider/basket_provider.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../common/const/data.dart';
@@ -21,6 +22,8 @@ import '../../user/model/basket_item_model.dart';
 import '../model/restaurant_model.dart';
 import '../provider/restaurant_rating_provider.dart';
 import 'package:badges/badges.dart';
+
+import 'basket_screen.dart';
 
 class RestaurantDetailScreen extends ConsumerStatefulWidget {
   static String get routeName => 'restaurantDetail';
@@ -100,7 +103,9 @@ class _RestaurantDetailScreenState
     required List<BasketItemModel> basket,
   }) {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: () {
+        context.pushNamed(BasketScreen.routeName);
+      },
       backgroundColor: PRIMARY_COLOR,
       child: Badge(
         showBadge: basket.isNotEmpty,
