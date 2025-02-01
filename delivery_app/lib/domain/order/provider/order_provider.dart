@@ -1,3 +1,5 @@
+import 'package:delivery_app/common/model/cursor_pagination_model.dart';
+import 'package:delivery_app/common/provider/pagination_provider.dart';
 import 'package:delivery_app/domain/order/model/order_model.dart';
 import 'package:delivery_app/domain/order/model/post_order_body.dart';
 import 'package:delivery_app/domain/order/repository/order_repository.dart';
@@ -5,24 +7,23 @@ import 'package:delivery_app/domain/user/provider/basket_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-final orderProvider = StateNotifierProvider<OrderProvider, List<OrderModel>>(
+final orderProvider = StateNotifierProvider<OrderStateNotifier, CursorPaginationBase>(
   (ref) {
     final orderRepository = ref.watch(orderRepositoryProvider);
-    return OrderProvider(
+    return OrderStateNotifier(
       ref: ref,
-      orderRepository: orderRepository,
+      repository: orderRepository,
     );
   },
 );
 
-class OrderProvider extends StateNotifier<List<OrderModel>> {
+class OrderStateNotifier extends PaginationProvider<OrderModel, OrderRepository> {
   final Ref ref;
-  final OrderRepository orderRepository;
 
-  OrderProvider({
+  OrderStateNotifier({
     required this.ref,
-    required this.orderRepository,
-  }) : super([]);
+    required super.repository,
+  });
 
   Future<bool> postOrder() async {
     try {
@@ -31,7 +32,7 @@ class OrderProvider extends StateNotifier<List<OrderModel>> {
       final uuid = Uuid();
       final id = uuid.v4();
 
-      final response = await orderRepository.postOrder(
+      final response = await repository.postOrder(
         body: PostOrderBody(
           id: id,
           products: basket

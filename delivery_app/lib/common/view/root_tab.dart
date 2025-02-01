@@ -1,5 +1,6 @@
 import 'package:delivery_app/common/const/colors.dart';
 import 'package:delivery_app/common/layout/default_layout.dart';
+import 'package:delivery_app/domain/order/view/order_screen.dart';
 import 'package:delivery_app/domain/product/view/product_screen.dart';
 import 'package:delivery_app/domain/restaurant/view/restaurant_screen.dart';
 import 'package:delivery_app/domain/user/view/profile_screen.dart';
@@ -51,11 +52,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
         children: [
           RestaurantScreen(),
           ProductScreen(),
-          Center(
-            child: Container(
-              child: Text('주문'),
-            ),
-          ),
+          OrderScreen(),
           ProfileScreen(),
         ],
       ),
@@ -67,7 +64,6 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
         type: BottomNavigationBarType.fixed,
         onTap: (int index) {
           controller.animateTo(index);
-          print('index: $index');
         },
         currentIndex: index,
         items: [

@@ -5,11 +5,11 @@ import 'package:delivery_app/common/utils/pagination_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef PaginationWidgetBuilder<T extends IModelWithId> = Widget Function(BuildContext context, int index, T model);
+typedef PaginationWidgetBuilder<T extends IModelWithId> = Widget Function(
+    BuildContext context, int index, T model);
 
-
-
-class PaginationListView<T extends IModelWithId> extends ConsumerStatefulWidget {
+class PaginationListView<T extends IModelWithId>
+    extends ConsumerStatefulWidget {
   final StateNotifierProvider<PaginationProvider, CursorPaginationBase>
       provider;
 
@@ -22,10 +22,12 @@ class PaginationListView<T extends IModelWithId> extends ConsumerStatefulWidget 
   });
 
   @override
-  ConsumerState<PaginationListView> createState() => _PaginationListViewState<T>();
+  ConsumerState<PaginationListView> createState() =>
+      _PaginationListViewState<T>();
 }
 
-class _PaginationListViewState<T extends IModelWithId> extends ConsumerState<PaginationListView> {
+class _PaginationListViewState<T extends IModelWithId>
+    extends ConsumerState<PaginationListView> {
   final ScrollController scrollController = ScrollController();
 
   @override
@@ -90,29 +92,37 @@ class _PaginationListViewState<T extends IModelWithId> extends ConsumerState<Pag
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ListView.separated(
-        controller: scrollController,
-        itemCount: cp.data.length + 1,
-        itemBuilder: (_, index) {
-          if (index == cp.data.length) {
-            return Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Center(
-                child: cp is CursorPaginationFetchingMore
-                    ? CircularProgressIndicator()
-                    : Text('마지막 데이터입니다 ㅠㅠ'),
-              ),
-            );
-          }
-
-          final item = cp.data[index];
-
-          return widget.itemBuilder(context, index, item);
+      child: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(widget.provider.notifier).paginate(
+                forceRefetch: true,
+              );
         },
-        separatorBuilder: (_, index) {
-          return SizedBox(height: 16);
-        },
+        child: ListView.separated(
+          physics: AlwaysScrollableScrollPhysics(),
+          controller: scrollController,
+          itemCount: cp.data.length + 1,
+          itemBuilder: (_, index) {
+            if (index == cp.data.length) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Center(
+                  child: cp is CursorPaginationFetchingMore
+                      ? CircularProgressIndicator()
+                      : Text('마지막 데이터입니다 ㅠㅠ'),
+                ),
+              );
+            }
+
+            final item = cp.data[index];
+
+            return widget.itemBuilder(context, index, item);
+          },
+          separatorBuilder: (_, index) {
+            return SizedBox(height: 16);
+          },
+        ),
       ),
     );
   }
