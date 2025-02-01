@@ -49,7 +49,7 @@ class CustomInterceptor extends Interceptor {
       options.headers.remove('accessToken'); // 헤더에서 accessToken을 삭제
       final accessToken = await flutterSecureStorage.read(
           key: ACCESS_TOKEN_KEY); // accessToken을 읽어옴
-      print('accessToken: ${accessToken.toString()}'); // accessToken을 출력
+      // print('accessToken: ${accessToken.toString()}'); // accessToken을 출력
       options.headers.addAll({
         // 헤더에 accessToken을 추가
         'authorization': 'Bearer $accessToken',
@@ -61,7 +61,7 @@ class CustomInterceptor extends Interceptor {
       options.headers.remove('refreshToken'); // 헤더에서 refreshToken을 삭제
       final refreshToken = await flutterSecureStorage.read(
           key: REFRESH_TOKEN_KEY); // refreshToken을 읽어옴
-      print('refreshToken: ${refreshToken.toString()}'); // refreshToken을 출력
+      // print('refreshToken: ${refreshToken.toString()}'); // refreshToken을 출력
       options.headers.addAll({
         // 헤더에 refreshToken을 추가
         'authorization': 'Bearer $refreshToken',

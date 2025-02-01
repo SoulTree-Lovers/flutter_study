@@ -1,3 +1,4 @@
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:delivery_app/common/model/cursor_pagination_model.dart';
 import 'package:delivery_app/common/model/model_with_id.dart';
 import 'package:delivery_app/common/repository/base_pagination_repository.dart';
@@ -5,13 +6,35 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../model/pagination_params.dart';
 
-class PaginationProvider<T extends IModelWithId, U extends IBasePaginationRepository<T>> extends StateNotifier<CursorPaginationBase> {
+class _PaginationInfo {
+  final int fetchCount;
+  final bool fetchMore; // true: fetch more, false: refresh(현재 상태 덮어쓰기)
+  final bool forceRefetch; // true: CursorPaginationLoading
+
+  _PaginationInfo({
+    this.fetchCount = 20,
+    this.fetchMore = false,
+    this.forceRefetch = false,
+  });
+}
+
+class PaginationProvider<T extends IModelWithId,
+        U extends IBasePaginationRepository<T>>
+    extends StateNotifier<CursorPaginationBase> {
   final U repository;
+  final paginationThrottle = Throttle(
+    Duration(seconds: 3), // 1초 간 Throttle 적용
+    initialValue: _PaginationInfo(),
+    checkEquality: false, // checkEquality: false로 설정하면 실행할 때마다 무조건 실행 / true로 설정하면 값이 변경될 때만 실행
+  );
 
   PaginationProvider({
     required this.repository,
   }) : super(CursorPaginationLoading()) {
     paginate();
+    paginationThrottle.values.listen((state) { // 1초 이후 실행할 함수 정의
+      _throttledPagination(state);
+    });
   }
 
   Future<void> paginate({
@@ -19,6 +42,18 @@ class PaginationProvider<T extends IModelWithId, U extends IBasePaginationReposi
     bool fetchMore = false, // true: fetch more, false: refresh(현재 상태 덮어쓰기)
     bool forceRefetch = false, // true: CursorPaginationLoading
   }) async {
+    paginationThrottle.setValue(_PaginationInfo(
+      fetchCount: fetchCount,
+      fetchMore: fetchMore,
+      forceRefetch: forceRefetch,
+    ));
+  }
+
+  _throttledPagination(_PaginationInfo info) async {
+    final fetchCount = info.fetchCount;
+    final fetchMore = info.fetchMore;
+    final forceRefetch = info.forceRefetch;
+
     try {
       // 5가지 경우의 수
       // 1. CursorPagination: 정상적으로 데이터를 가져온 경우
